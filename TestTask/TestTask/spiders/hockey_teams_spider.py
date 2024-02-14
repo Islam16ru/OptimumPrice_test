@@ -63,7 +63,8 @@ class HockeyTeamsSpiderSpider(scrapy.Spider):
             else:
                 formdate = {'page_num': str(page_number + 1)}
 
+
             #Переход на следующую страницу
-            return FormRequest.from_response(response=response,
+            yield FormRequest.from_response(response=response,
                                             formdata=formdate,
                                             callback=self.parse)
