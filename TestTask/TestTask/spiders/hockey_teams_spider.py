@@ -6,7 +6,9 @@ from scrapy import FormRequest, Request
 
 from TestTask.items import HockeyTeamsResultItem
 
-from TestTask.textworker import textnormalization
+from TestTask.itemsloaders import HockeyTeamsResultItemLoader
+
+
 
 class HockeyTeamsSpiderSpider(scrapy.Spider):
     name = "hockey_teams_spider"
@@ -26,24 +28,24 @@ class HockeyTeamsSpiderSpider(scrapy.Spider):
 
     def parse(self, response):
         #Инициация структуры для хранения данных
-        team_result = HockeyTeamsResultItem()
 
         #Получение всех строк
         results = response.xpath("//tr[@class='team']")
 
         #Дастаем из все данные из запроса и возврощаем их
         for result in results:
-            team_result['team_name'] = textnormalization(result.xpath("./td[@class='name']/text()").get())
-            team_result['year'] = textnormalization(result.xpath("./td[@class='year']/text()").get())
-            team_result['wins'] = textnormalization(result.xpath("./td[@class='wins']/text()").get())
-            team_result['losses'] = textnormalization(result.xpath("./td[@class='losses']/text()").get())
-            team_result['ot_losses'] = textnormalization(result.xpath("./td[@class='ot-losses']/text()").get())
-            team_result['win_percent'] = textnormalization(result.xpath("./td[@class='pct text-danger']/text()").get())
-            team_result['goals_for'] = textnormalization(result.xpath("./td[@class='gf']/text()").get())
-            team_result['goals_against'] = textnormalization(result.xpath("./td[@class='ga']/text()").get())
-            team_result['diff'] = textnormalization(result.xpath("./td[@class='diff text-danger']/text()").get())
+            team_result = HockeyTeamsResultItemLoader(item=HockeyTeamsResultItem(), selector=result)
+            team_result.add_xpath('team_name', "./td[@class='name']/text()")
+            team_result.add_xpath('year', "./td[@class='year']/text()")
+            team_result.add_xpath('wins', "./td[@class='wins']/text()")
+            team_result.add_xpath('losses', "./td[@class='losses']/text()")
+            team_result.add_xpath('ot_losses', "./td[@class='ot-losses']/text()")
+            team_result.add_xpath('win_percent', "./td[@class='pct text-danger']/text() | ./td[@class='pct text-success']/text() ")
+            team_result.add_xpath('goals_for', "./td[@class='gf']/text()")
+            team_result.add_xpath('goals_against', "./td[@class='ga']/text()")
+            team_result.add_xpath('diff', "./td[@class='diff text-danger']/text() | ./td[@class='diff text-success']/text() ")
 
-            yield team_result
+            yield team_result.load_item()
 
         #Проверка последняя ли это страница
         next_button = response.xpath("//ul[@class='pagination']/li/a[@aria-label='Next']")

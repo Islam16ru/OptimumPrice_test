@@ -19,7 +19,7 @@ class HockeyTeamsResultItem(scrapy.Item):
     losses = scrapy.Field()
     ot_losses = scrapy.Field()
     win_percent = scrapy.Field()
-    goals_for= scrapy.Field()
+    goals_for = scrapy.Field()
     goals_against = scrapy.Field()
     diff = scrapy.Field()
 
